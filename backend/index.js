@@ -6,7 +6,6 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet, { crossOriginResourcePolicy } from "helmet";
 import connectDB from "./Database/Db.js";
-connectDB();
 
 const app = express();
 app.use(
@@ -28,7 +27,13 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+
+
+
+
 const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });
