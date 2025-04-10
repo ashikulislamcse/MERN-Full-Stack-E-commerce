@@ -43,7 +43,7 @@ const userSchema = new mongoose.Schema(
     address_details: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "address",
+        ref: "Address",
       },
     ],
     shoping_cart: [
@@ -55,7 +55,7 @@ const userSchema = new mongoose.Schema(
     orderHistory: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "order",
+        ref: "Order",
       },
     ],
     forgot_password_otp: {
