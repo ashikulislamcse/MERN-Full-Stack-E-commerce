@@ -8,16 +8,22 @@ import helmet, { crossOriginResourcePolicy } from 'helmet';
 
 
 const app  = express();
-app.use(cors(
-    credentials = true,
-    origin = process.env.FRONTEND_URL
-));
+app.use(cors({
+    credentials : true,
+    origin : process.env.FRONTEND_URL
+}));
 app.use(express.json());
 app.use(cookieParser());
 app.use(morgan());
 app.use(helmet({
     crossOriginResourcePolicy: false,
 }));
+
+
+app.get('/', (req, res) => {
+    res.send('API is running...');
+}
+);
 
 
 const PORT = process.env.PORT || 5001;
