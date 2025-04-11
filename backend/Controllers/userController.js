@@ -8,6 +8,8 @@ import generateRefreshToken from "../Utils/generateRefreshToken.js";
 import uploadImageToClowdinary from "../Utils/clowdinary.js";
 import generateOTP from "../Utils/generateOTP.js";
 import ForgotPasswordEmailTemplate from "../Utils/ForgotPasswordEmailTemplete.js";
+import jwt from "jsonwebtoken";
+
 dotenv.config();
 
 // User Registration
@@ -326,6 +328,43 @@ export const resetPassword = async (req, res) => {
       success: true,
       message: "Password reset successfully",
       data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Refresh Token
+export const refreshToken = async (req, res) => {
+  try {
+    const refreshToken =
+      req.cookies.refreshToken || req?.header?.authorization?.split(" ")[1];
+    if (!refreshToken) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Refresh token not found" });
+    }
+    const verifyToken = await jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+    console.log("verifyToken",verifyToken);
+    const userId = verifyToken._id;
+    if(!verifyToken){
+      return res.status(400).json({ success: false, message: "Invalid token" });
+    }
+    const newAccessToken = await generateAccessToken(userId);
+    res.cookie("accessToken", newAccessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    return res.status(200).json({
+      success: true,
+      message: "New access token generated",
+      data: {
+        accessToken: newAccessToken,
+      },
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
