@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import sendMail from "../config/sendEmail.js";
 import verifyEmailTemplate from "../Utils/VerifyEmailTemplete.js";
+import generateAccessToken from "../Utils/generateAccessToken.js";
+import generateRefreshToken from "../Utils/generateRefreshToken.js";
 dotenv.config();
 
 // User Registration
@@ -103,7 +105,34 @@ export const userLogin = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid Password" });
     }
-    
+    const accessToken = await generateAccessToken(user._id);
+    const refreshToken = await generateRefreshToken(user._id);
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      data: {
+        userId: user._id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        mobile: user.mobile,
+        accessToken,
+        refreshToken,
+      },
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
