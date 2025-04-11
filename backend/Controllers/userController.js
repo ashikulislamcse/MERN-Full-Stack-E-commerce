@@ -1,7 +1,9 @@
-import sendEmail from "../config/sendEmail.js";
 import User from "../Models/userModel.js";
 import bcrypt from "bcryptjs";
+import dotenv from "dotenv";
+import sendEmail from "../config/sendEmail.js";
 import VerifyEmailTemplete from "../Utils/VerifyEmailTemplete.js";
+dotenv.config();
 
 export const registerUser = async (req, res) => {
   try {
@@ -24,18 +26,21 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
     await newUser.save();
-    const verifyEmailUrl =` ${process.env.FRONTEND_URL}/verify-email?code=${newUser?._id}`
-    const verifyEmail = await sendEmail({
-        sendTo: email,
-        subject: "Verify Email From CholoKinbo",
-        html: VerifyEmailTemplete({
-            name: name,
-            url: verifyEmailUrl
-        })
-    })
-    return res
-      .status(201)
-      .json({ success: true, message: "User registered successfully", data: newUser });
+    const url = `${process.env.FRONTEND_URL}/verify-email?code=${newUser?._id}`;
+    const verifyEmail = sendEmail({
+      sendTo: "ashikulislamcse@gmail.com",
+      subject: "Verify your email",
+      html: VerifyEmailTemplete({
+        name,
+        url,
+      })
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: newUser,
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
