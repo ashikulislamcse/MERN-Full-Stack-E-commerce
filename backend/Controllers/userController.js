@@ -198,7 +198,7 @@ export const updateUserDetails = async (req, res) => {
     const userId = req.userId; //Auth Middleware the userId
     const {name, email, mobile, password} = req.body;
 
-    const updatedUser = await User.findByIdAndUpdate(userId, {
+    const updatedUser = await User.updateOne( {_id: userId}, {
       ...(name && { name: name }),
       ...(email && { email: email }),
       ...(mobile && { mobile: mobile }),
@@ -214,3 +214,5 @@ export const updateUserDetails = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+
