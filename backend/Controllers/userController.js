@@ -137,3 +137,31 @@ export const userLogin = async (req, res) => {
     return res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// Logout User
+
+export const userLogout = async (req, res) => {
+  try {
+    const userId = req.userId;
+    res.clearCookie("accessToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    const removeRefreshToken = await User.findByIdAndUpdate(
+      userId,
+      { refresh_token: "" }
+    );
+    return res.status(200).json({
+      success: true,
+      message: "Logout successful",
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
