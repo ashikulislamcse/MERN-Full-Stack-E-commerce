@@ -246,8 +246,8 @@ export const forgotPassword = async (req, res) => {
       email,
       "Forgot Password OTP from CholoKinbo",
       ForgotPasswordEmailTemplate({
-        name: user.name, 
-        otp: OTP
+        name: user.name,
+        otp: OTP,
       })
     );
 
@@ -261,4 +261,73 @@ export const forgotPassword = async (req, res) => {
   }
 };
 
+// Verify OTP for Forgot Password
+export const verifyForgotPasswordOTP = async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
 
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User Not Found!" });
+    }
+    const currentTime = new Date().toISOString();
+    if (user.forgot_password_expiry < currentTime) {
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP is Expired" });
+    }
+    if (otp !== user.forgot_password_otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Reset Password
+export const resetPassword = async (req, res) => {
+  try {
+    const { email, newPassword, confirmPassword } = req.body;
+    if (!email || !newPassword || !confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+    }
+    if (newPassword !== confirmPassword) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Passwords do not match" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User is not Available" });
+    }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const updatedUser = await User.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+      forgot_password_otp: "",
+      forgot_password_expiry: "",
+    });
+    return res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
