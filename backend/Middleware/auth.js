@@ -7,7 +7,7 @@ const auth = async (req, res, next) => {
     try {
         const token = req.cookies.accessToken || req?.header?.authorization?.split(" ")[1];
         if (!token) {
-        return res.status(401).json({ success: false, message: "Not Get Token" });
+        return res.status(401).json({ success: false, message: "Provide Token" });
         }
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
         if (!decoded) {

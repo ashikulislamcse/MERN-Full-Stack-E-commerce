@@ -5,6 +5,7 @@ import sendMail from "../config/sendEmail.js";
 import verifyEmailTemplate from "../Utils/VerifyEmailTemplete.js";
 import generateAccessToken from "../Utils/generateAccessToken.js";
 import generateRefreshToken from "../Utils/generateRefreshToken.js";
+import uploadImageToClowdinary from "../Utils/clowdinary.js";
 dotenv.config();
 
 // User Registration
@@ -138,7 +139,7 @@ export const userLogin = async (req, res) => {
   }
 };
 
-// Logout User
+// User Logout
 
 export const userLogout = async (req, res) => {
   try {
@@ -153,13 +154,37 @@ export const userLogout = async (req, res) => {
       secure: true,
       sameSite: "None",
     });
-    const removeRefreshToken = await User.findByIdAndUpdate(
-      userId,
-      { refresh_token: "" }
-    );
+    const removeRefreshToken = await User.findByIdAndUpdate(userId, {
+      refresh_token: "",
+    });
     return res.status(200).json({
       success: true,
       message: "Logout successful",
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Upload user Avatar
+
+export const uploadUserAvatar = async (req, res) => {
+  try {
+    const userId = req.userId; //Auth Middleware the userId
+    const image = req.file; //Multer Middleware the image
+    const upload = await uploadImageToClowdinary(image);
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      avatar: upload.secure_url,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Image uploaded successfully",
+      data: {
+        _id : userId,
+        avatar : upload.secure_url,
+      }
     });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
