@@ -24,7 +24,7 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
     await newUser.save();
-    const verifyEmailUrl =` ${process.env.FRONTEND_URL}/verify-email?code=${newUser._id}`
+    const verifyEmailUrl =` ${process.env.FRONTEND_URL}/verify-email?code=${newUser?._id}`
     const verifyEmail = await sendEmail({
         sendTo: email,
         subject: "Verify Email From CholoKinbo",

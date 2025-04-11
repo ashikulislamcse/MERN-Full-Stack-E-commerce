@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import morgan from "morgan";
 import helmet, { crossOriginResourcePolicy } from "helmet";
 import connectDB from "./Database/Db.js";
+import userRouter from "./Routes/userRoute.js";
 
 const app = express();
 app.use(
@@ -28,7 +29,7 @@ app.get("/", (req, res) => {
 });
 
 
-
+app.use("/api/user", userRouter);
 
 
 const PORT = process.env.PORT || 5001;
