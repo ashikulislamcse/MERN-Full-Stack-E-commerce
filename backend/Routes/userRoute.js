@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  forgotPassword,
   registerUser,
   updateUserDetails,
   uploadUserAvatar,
@@ -23,5 +24,6 @@ userRouter.put(
   uploadUserAvatar
 );
 userRouter.put("/update-user", auth, updateUserDetails);
+userRouter.put("/forgot-password", forgotPassword);
 
 export default userRouter;

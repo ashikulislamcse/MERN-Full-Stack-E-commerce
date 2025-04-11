@@ -6,6 +6,8 @@ import verifyEmailTemplate from "../Utils/VerifyEmailTemplete.js";
 import generateAccessToken from "../Utils/generateAccessToken.js";
 import generateRefreshToken from "../Utils/generateRefreshToken.js";
 import uploadImageToClowdinary from "../Utils/clowdinary.js";
+import generateOTP from "../Utils/generateOTP.js";
+import ForgotPasswordEmailTemplate from "../Utils/ForgotPasswordEmailTemplete.js";
 dotenv.config();
 
 // User Registration
@@ -196,20 +198,64 @@ export const uploadUserAvatar = async (req, res) => {
 export const updateUserDetails = async (req, res) => {
   try {
     const userId = req.userId; //Auth Middleware the userId
-    const {name, email, mobile, password} = req.body;
+    const { name, email, mobile, password } = req.body;
 
-    const updatedUser = await User.updateOne( {_id: userId}, {
-      ...(name && { name: name }),
-      ...(email && { email: email }),
-      ...(mobile && { mobile: mobile }),
-      ...(password && { password: await bcrypt.hash(password, 10) }),
-    });
+    const updatedUser = await User.updateOne(
+      { _id: userId },
+      {
+        ...(name && { name: name }),
+        ...(email && { email: email }),
+        ...(mobile && { mobile: mobile }),
+        ...(password && { password: await bcrypt.hash(password, 10) }),
+      }
+    );
     return res.status(200).json({
       success: true,
       message: "User updated successfully",
       data: updatedUser,
     });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
+// Fotgot Password When User Not Login
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email is required" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User Not Found!" });
+    }
+    const OTP = generateOTP();
+    const expireTime = Date.now() + 30 * 60 * 1000; // 30 minutes
+
+    const updatedUser = await User.findByIdAndUpdate(user._id, {
+      forgot_password_otp: OTP,
+      forgot_password_expiry: new Date(expireTime).toISOString(),
+    });
+
+    await sendMail(
+      email,
+      "Forgot Password OTP from CholoKinbo",
+      ForgotPasswordEmailTemplate({
+        name: user.name, 
+        otp: OTP
+      })
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "OTP sent to your email",
+      data: updatedUser,
+    });
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
