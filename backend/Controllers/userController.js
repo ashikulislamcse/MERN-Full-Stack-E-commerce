@@ -182,10 +182,34 @@ export const uploadUserAvatar = async (req, res) => {
       success: true,
       message: "Image uploaded successfully",
       data: {
-        _id : userId,
-        avatar : upload.secure_url,
-      }
+        _id: userId,
+        avatar: upload.secure_url,
+      },
     });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Update User Details
+
+export const updateUserDetails = async (req, res) => {
+  try {
+    const userId = req.userId; //Auth Middleware the userId
+    const {name, email, mobile, password} = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(userId, {
+      ...(name && { name: name }),
+      ...(email && { email: email }),
+      ...(mobile && { mobile: mobile }),
+      ...(password && { password: await bcrypt.hash(password, 10) }),
+    });
+    return res.status(200).json({
+      success: true,
+      message: "User updated successfully",
+      data: updatedUser,
+    });
+
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
