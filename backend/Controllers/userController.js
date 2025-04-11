@@ -2,6 +2,7 @@ import User from "../Models/userModel.js";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import sendMail from "../config/sendEmail.js";
+import verifyEmailTemplate from "../Utils/VerifyEmailTemplete.js";
 dotenv.config();
 
 export const registerUser = async (req, res) => {
@@ -25,10 +26,16 @@ export const registerUser = async (req, res) => {
       password: hashedPassword,
     });
     await newUser.save();
+
+    const VerifyEmailUrl = `${process.env.FRONTEND_URL}/verify-email?code=${newUser?._id}`;
+
     await sendMail(
       email,
-      "Welcome to Our Website",
-      `<h1>Hi ${name},</h1><p>Thanks for registering at Our Website!</p>`
+      "Verify email from CholoKinbo",
+      verifyEmailTemplate({
+        name,
+        url: VerifyEmailUrl,
+      })
     );
 
     return res.status(201).json({

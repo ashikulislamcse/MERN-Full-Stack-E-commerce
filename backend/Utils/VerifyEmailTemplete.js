@@ -1,12 +1,11 @@
-const VerifyEmailTemplete = ({name, url}) => {
+const verifyEmailTemplate = ({ name, url }) => {
   return `
-    <p>Dear ${name}</p>
-    <p>Thank You For Registering CholoKinbo</p>
-    <a href=${url} style="background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
-    Verify Email
-    </a>
-    `;
+<p>Dear ${name}</p>    
+<p>Thank you for registering CholoKinbo.</p>   
+<a href=${url} style="color:black;background :orange;margin-top : 10px,padding:20px,display:block">
+  Verify Email
+</a>
+`;
 };
 
-
-export default VerifyEmailTemplete;
+export default verifyEmailTemplate;
