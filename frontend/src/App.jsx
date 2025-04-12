@@ -9,7 +9,7 @@ const App = () => {
     <>
       <BrowserRouter>
         <Header />
-        <main className="min-h-[80vh]">
+        <main className="min-h-[80vh] mt-3">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/search" element={<SearchPage />} />
