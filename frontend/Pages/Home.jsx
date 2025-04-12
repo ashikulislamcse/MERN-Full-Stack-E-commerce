@@ -6,8 +6,7 @@ const Home = () => {
   return (
     <div>
       <Header />
-      Home
-      <Footer />
+      <main className="min-h-[80vh]">Home Page</main>
     </div>
   );
 };
